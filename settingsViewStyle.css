@@ -1,0 +1,130 @@
+#settingsView {
+  position: fixed;
+  width: inherit;
+  height: 500px;
+  left: -360px;
+  /* left: 0; */
+  transition: left .5s linear;
+  z-index: 1000;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Helvetica Neue Medium', 'Helvetica', 'sans-serif';
+}
+
+#settingsView.show {
+  left: 0;
+}
+
+#settingsView > h2{
+  color: #5D8EE4;
+  /* align-self: self-start;
+  margin-left: 10px; */
+  font-weight: normal;
+}
+
+#save-settings-btn{
+  height: 50px;
+  width: 150px;
+  background-color: #5D8EE4;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  margin-top: auto;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+#save-settings-btn:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+#save-settings-btn:active {
+  opacity: 1;
+  border-color: rgb(52, 42, 190);
+  box-shadow: inset 0 -1px 4px rgba(0, 0, 0, .1), inset 0 1px 4px rgba(0, 0, 0, .3);
+}
+
+#inputContainer{
+  height: 180px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.inputFields{
+  float: right;
+}
+
+.inputFields > input[type="text"]{
+  width: 40px;
+}
+
+
+
+/**
+ * Checkbox Five
+ */
+ .checkboxFive {
+  width: 10px;
+  /* margin: 20px 100px; */
+  position: relative;
+}
+
+/**
+ * Create the box for the checkbox
+ */
+ .checkboxFive label {
+  cursor: pointer;
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  top: 0;
+  left: 0;
+  background: #fff;
+  border:1px solid #aaa;
+}
+
+/**
+ * Display the tick inside the checkbox
+ */
+ .checkboxFive label:after {
+  opacity: 0;
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 3px;
+  background: transparent;
+  top: 3px;
+  left: 3px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+
+  transform: rotate(-45deg);
+}
+
+.checkboxFive input[type="checkbox"]{
+  margin: 1px;
+}
+/**
+ * Create the hover event of the tick
+ */
+ .checkboxFive label:hover::after {
+  opacity: 0.5;
+}
+/**
+* Create the checkbox state for the tick
+*/
+.checkboxFive input[type=checkbox]:checked + label:after {
+  opacity: 1;
+  background: #5D8EE4;
+}
+.checkboxFive input[type=checkbox]:checked + label {
+  opacity: 1;
+  background: #5D8EE4;
+}
+
