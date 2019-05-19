@@ -68,31 +68,28 @@ function pauseTimer() {
   clearInterval(timer);
   timer = null;
   isPause = true;
-  // sendDataToPopup();
 }
 
-function stopTimer() {
+function discardTimer() {
   clearInterval(timer);
   timer = null;
-  isPause = false;
-  isBreak = true;
+  isPause = true;
+  isBreak = false;
   currentTime = 0;
   currentAllTime = 0;
   currentTimerTime = 0;
   amountOfRepeats = 0;
   amountOfLongBreaks = 0;
   allTime = 0;
-  sendDataToPopup('discard');
   chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
 }
 
 
 function update() {
-  console.log(getTimerData())
   if (currentTime >= currentTimerTime) {
     currentTime = 1;
     if (amountOfRepeats >= workRepeats) {
-      stopTimer();
+      discardTimer();
       sendDataToPopup('end');
       chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
       return;
@@ -136,11 +133,6 @@ function sendDataToPopup(cmd = '') {
       answer: 'endTimer',
       data: getTimerData()
     });
-  } else if (cmd === 'discard') {
-    chrome.runtime.sendMessage({
-      answer: 'discardTimer',
-      data: getTimerData()
-    });
   } else {
     chrome.runtime.sendMessage({
       answer: 'getTimerState',
@@ -169,10 +161,10 @@ chrome.runtime.onConnect.addListener(function (port) {
         answer: "pauseTimer",
         data: getTimerData()
       });
-    } else if (msg.cmd === "stopTimer") {
-      stopTimer();
+    } else if (msg.cmd === "discardTimer") {
+      discardTimer();
       port.postMessage({
-        answer: "stopTimer",
+        answer: "discardTimer",
         data: getTimerData() 
       });
     }

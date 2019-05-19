@@ -15,20 +15,8 @@ chrome.runtime.onMessage.addListener(
       updateCircle(req.data);
       updateProgress(req.data);
       console.log(req.data)
-    } else if (req.answer === "discardTimer") {
-      updateTimerData();
-      oldEndAngle = 0;
-      ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
-      ctxProgress.clearRect(0, 0, canvasProgress.width, canvasProgress.height);
-      $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
-      $('#timer').css('color', '#5D8EE4');
-      $('#workOrBreakLabel').text("Let's go");
-      $('#allBreaks').text('0/0');
-      $('#timer').text('00:00')
-      $('#progressPersent').text('0%')
     } else if (req.answer === "endTimer") {
       updateTimerData();
-      oldEndAngle = 0;
       ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
       $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
       $('#timer').css('color', '#5D8EE4');
@@ -55,20 +43,27 @@ $(document).ready(function () {
   $('#save-settings-btn').on('click', saveSettings);
 
   port.onMessage.addListener(function (msg) {
+    updateTimerData(msg.data);
     if (msg.answer === "getTimer") {
       if (msg.data.isTimer) {
         $('#breaks-count').text('Timer in use!');
       } else {
         $('#breaks-count').text('No Timer!');
       }
-    } else if (msg.answer === "stopTimer") {
+    } else if (msg.answer === "discardTimer") {
       $('#breaks-count').text('Timer is stoped');
+      ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
+      ctxProgress.clearRect(0, 0, canvasProgress.width, canvasProgress.height);
+      $('#timer').css('color', '#5D8EE4');
+      $('#workOrBreakLabel').text("Let's go");
+      $('#allBreaks').text('0/0');
+      $('#timer').text('00:00')
+      $('#progressPersent').text('0%')
     } else if (msg.answer === "pauseTimer") {
       $('#breaks-count').text('Timer is paused');
     } else if (msg.answer === "startTimer") {
       $('#breaks-count').text('Timer is start');
     }
-    updateTimerData(msg.data);
     $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
   });
 
@@ -103,9 +98,8 @@ function toggleClock() {
 
 function discardClock() {
   port.postMessage({
-    cmd: "stopTimer"
+    cmd: "discardTimer"
   });
-  isTimer = false;
 }
 
 function displaySettings() {
@@ -157,7 +151,6 @@ function timerView(strings, minutesExp, secondsExp) {
   return `${minutesExp}${str0}${secondsExp}`;
 }
 
-// var oldEndAngle = 0;
 function updateCircle(data) {
 
   if (data.isBreak) {
