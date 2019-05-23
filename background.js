@@ -6,7 +6,7 @@ var workTime = 0,
   currentTime = 0,
   currentTimerTime = 0,
   amountOfLongBreaks = 0,
-  currentAllTime = 0,
+  currentAllTime = 1,
   allTime = 0,
   amountOfRepeats = 0,
   showNotifications,
@@ -17,10 +17,10 @@ var workTime = 0,
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 0.25 * 60,
-    workRepeats: 5,
-    shortBreak: 0.125 * 60,
-    longBreak: 0.25 * 60,
+    workTime: 0.3,
+    workRepeats: 3,
+    shortBreak: 0.1,
+    longBreak: 0.2,
     longBreakAfter: 2,
     showNotifications: true 
   }, function (items) {
@@ -46,7 +46,6 @@ function calcAmountOfLongBreaks() {
       amount = workRepeats / longBreakAfter;
     }
   }
-  console.log(amount)
   return amount;
 }
 
@@ -76,14 +75,13 @@ function discardTimer() {
   isPause = true;
   isBreak = false;
   currentTime = 0;
-  currentAllTime = 0;
+  currentAllTime = 1;
   currentTimerTime = 0;
   amountOfRepeats = 0;
   amountOfLongBreaks = 0;
   allTime = 0;
   chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
 }
-
 
 function update() {
   if (currentTime >= currentTimerTime) {
@@ -94,7 +92,7 @@ function update() {
       chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
       return;
     }
-    if (!isBreak && currentAllTime !== 0) {
+    if (!isBreak && currentAllTime !== 1) {
       if (amountOfRepeats % longBreakAfter === 0) {
         currentTimerTime = longBreak;
       } else {
@@ -187,19 +185,18 @@ function getTimerData(){
 }
 //////////////////////////////////////////////////////
 
-chrome.runtime.onInstalled.addListener(function () {
-  // add an action here
-  //setInterval(timedpopup, 10000);
-});
-
-var counter = 0;
+function clearNotificaion(){
+  chrome.notifications.clear('reportBreakToGo')
+}
 
 function callNotification(msg) {
-  chrome.notifications.create('report' + counter, {
+  chrome.notifications.create('reportBreakToGo', {
     type: "basic",
     title: "BreakToGo",
     message: msg,
     iconUrl: `images/${isBreak ? 'break' : 'work'}-notification-64.png`
-  }, function () { });
-  counter++;
+  }, function (nID) { 
+    setTimeout(clearNotificaion, 5000);
+    // chrome.notifications.clear(nID);
+  });
 }

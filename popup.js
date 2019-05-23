@@ -4,31 +4,26 @@ var port = null;
 var canvasCircle, ctxCircle, canvasProgress, ctxProgress;
 var globalIsBreak;
 var globalIsPause;
+var discardTimerFlag = false;
 
 
 chrome.runtime.onMessage.addListener(
   function (req, sender, sendResponse) {
+    updateTimerData(req.data);
     if (req.answer === "getTimerState") {
-      $('#breaks-count').text(req.data.currentTime);
-      // sendResponse({farewell: "goodbye"});
-      updateTimerData(req.data);
       updateCircle(req.data);
       updateProgress(req.data);
-      console.log(req.data)
     } else if (req.answer === "endTimer") {
-      updateTimerData();
       ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
+      drawGenProgress()
       $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
       $('#timer').css('color', '#5D8EE4');
       $('#workOrBreakLabel').text("You're all set");
-      $('#allBreaks').text('0/0');
-      $('#timer').text('00:00')
+      $('#currentRepeat').text('0');
+      $('#allRepeats').text('/0');
+      $('#timer').text('00:00:00')
     }
   });
-
-// document.addEventListener('DOMContentLoaded', function () {
-//   document.querySelector('#play-button').addEventListener('click', alerm);
-// });
 
 $(document).ready(function () {
   port = chrome.runtime.connect({
@@ -40,29 +35,31 @@ $(document).ready(function () {
   $('#play-btn').on('click', toggleClock);
   $('#discard-btn').on('click', discardClock);
   $('#settings-btn').on('click', displaySettings);
-  $('#save-settings-btn').on('click', saveSettings);
+
+  $("#settingsForm").submit((event) => {
+    event.preventDefault();
+    saveSettings();
+  });
 
   port.onMessage.addListener(function (msg) {
     updateTimerData(msg.data);
     if (msg.answer === "getTimer") {
       if (msg.data.isTimer) {
-        $('#breaks-count').text('Timer in use!');
       } else {
-        $('#breaks-count').text('No Timer!');
       }
     } else if (msg.answer === "discardTimer") {
-      $('#breaks-count').text('Timer is stoped');
+      discardTimerFlag = true;
       ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
-      ctxProgress.clearRect(0, 0, canvasProgress.width, canvasProgress.height);
+      // updateCircle(msg.data);
+      drawGenProgress();
       $('#timer').css('color', '#5D8EE4');
       $('#workOrBreakLabel').text("Let's go");
-      $('#allBreaks').text('0/0');
-      $('#timer').text('00:00')
+      $('#currentRepeat').text('0');
+      $('#allRepeats').text('/0');
+      $('#timer').text('00:00:00')
       $('#progressPersent').text('0%')
     } else if (msg.answer === "pauseTimer") {
-      $('#breaks-count').text('Timer is paused');
     } else if (msg.answer === "startTimer") {
-      $('#breaks-count').text('Timer is start');
     }
     $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
   });
@@ -105,13 +102,6 @@ function discardClock() {
 function displaySettings() {
   $('#settingsView').toggleClass('show');
 }
-// document.querySelector('#go-to-options').addEventListener("click", function () {
-//   if (chrome.runtime.openOptionsPage) {
-//     chrome.runtime.openOptionsPage();
-//   } else {
-//     window.open(chrome.runtime.getURL('options.html'));
-//   }
-// });
 
 function drawClock() {
   canvasCircle = document.getElementById("clock")
@@ -140,15 +130,16 @@ function drawGenProgress() {
   ctxProgress.stroke();
 }
 
-function timerView(strings, minutesExp, secondsExp) {
-  let str0 = strings[1]; // ":"
+function timerView(strings, hoursExp, minutesExp, secondsExp) {
 
+  if (hoursExp.toString().length < 2)
+    hoursExp = '0' + hoursExp;
   if (minutesExp.toString().length < 2)
     minutesExp = '0' + minutesExp;
   if (secondsExp.toString().length < 2)
     secondsExp = '0' + secondsExp;
 
-  return `${minutesExp}${str0}${secondsExp}`;
+  return `${hoursExp}:${minutesExp}:${secondsExp}`;
 }
 
 function updateCircle(data) {
@@ -163,21 +154,18 @@ function updateCircle(data) {
 
   $('#currentRepeat').text(data.amountOfRepeats);
   $('#allRepeats').text(`/${data.workRepeats}`);
-  $('#timer').text(timerView`${Math.floor(data.currentTime / 60) % 60}:${data.currentTime % 60}`)
+  $('#timer').text(timerView`${Math.floor(data.currentTime / 60 / 60) % 60}:${Math.floor(data.currentTime / 60) % 60}:${data.currentTime % 60}`)
 
   $('#play-btn').css("backgroundImage", `url('images/${!data.isPause ? 'pause' : 'play'}_${data.isBreak ? 'break' : 'work'}_normal.png')`);
 
-  let currentEndAngle = ((Math.PI * 2) / data.currentTimerTime) * ((data.currentTime <=0) ? 0 : (data.currentTime - 1));
+  let currentEndAngle = ((Math.PI * 2) / data.currentTimerTime) * ((data.currentTime <= 0) ? 0 : (data.currentTime - 1));
   let finalEndAngle = ((Math.PI * 2) / data.currentTimerTime) * data.currentTime;
-
-  console.log(currentEndAngle, finalEndAngle)
 
   requestAnimationFrame(function animateTik() {
 
     ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
 
     ctxCircle.beginPath();
-    // console.log(allTime, '---', currentTime)
     ctxCircle.arc(canvasCircle.width / 2, canvasCircle.height / 2, (canvasCircle.width / 2) - 3, 0, currentEndAngle);
     ctxCircle.lineWidth = 4;
     ctxCircle.strokeStyle = data.isBreak ? '#C4D141' : '#5D8EE4';
@@ -189,19 +177,18 @@ function updateCircle(data) {
     ctxCircle.stroke();
 
     currentEndAngle = currentEndAngle + (Math.PI * 2 / data.currentTimerTime / 50);
-    if (finalEndAngle >= currentEndAngle && isTimer)
+    if (finalEndAngle >= currentEndAngle && ((globalIsPause && !isTimer) || (!globalIsPause && isTimer))) {
       requestAnimationFrame(animateTik);
-
-    if (!isTimer && !globalIsPause)
+    }
+    else if (discardTimerFlag) {
       ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
+      discardTimerFlag = false;
+    }
   })
 
 }
 
 function updateProgress(data) {
-
-  // ctxProgress.clearRect(0, 0, canvasProgress.width, canvasProgress.height);
-
   let progress = (data.currentAllTime / data.allTime);
   ctxProgress.beginPath();
   ctxProgress.moveTo(0, canvasProgress.height / 2);
@@ -211,7 +198,6 @@ function updateProgress(data) {
   ctxProgress.stroke();
 
   $('#progressPersent').text(`${Math.floor(progress * 100)}%`)
-
 }
 
 // Saves settings to chrome.storage
@@ -246,10 +232,10 @@ function saveSettings() {
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 0.25,
-    workRepeats: 5,
-    shortBreak: 0.125,
-    longBreak: 0.25,
+    workTime: 0.3,
+    workRepeats: 3,
+    shortBreak: 0.1,
+    longBreak: 0.2,
     longBreakAfter: 2,
     showNotifications: true
   }, function (items) {

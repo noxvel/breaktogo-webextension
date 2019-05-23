@@ -1,6 +1,6 @@
 {
   "name": "BreakToGo",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Time management app",
   "manifest_version": 2,
 
@@ -29,7 +29,6 @@
 
   "permissions": [
     "notifications", "declarativeContent", "storage"
-  ],
-  "options_page": "options.html"
+  ]
 
 }

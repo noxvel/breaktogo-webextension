@@ -1,10 +1,8 @@
 #settingsView {
-  position: fixed;
+  position: relative;
   width: inherit;
   height: 500px;
-  left: -360px;
   /* left: 0; */
-  transition: left .5s linear;
   z-index: 1000;
   background-color: white;
 }
