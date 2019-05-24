@@ -3,7 +3,6 @@
   width: inherit;
   height: 500px;
   left: -360px;
-  /* left: 0; */
   transition: left .5s linear;
   z-index: 1000;
   background-color: white;
@@ -75,18 +74,14 @@
   width: 70px;
 }
 
-/**
- * Checkbox Custom 
- */
+/* Checkbox Custom  */
 .checkboxCustom {
   width: 10px;
   /* margin: 20px 100px; */
   position: relative;
 }
 
-/**
- * Create the box for the checkbox
- */
+/* Create the box for the checkbox */
 .checkboxCustom label {
   cursor: pointer;
   position: absolute;
@@ -98,9 +93,7 @@
   border: 1px solid #aaa;
 }
 
-/**
- * Display the tick inside the checkbox
- */
+/* Display the tick inside the checkbox */
 .checkboxCustom label:after {
   opacity: 0;
   content: '';
@@ -121,16 +114,12 @@
   margin: 1px;
 }
 
-/**
- * Create the hover event of the tick
- */
+/* Create the hover event of the tick */
 .checkboxCustom label:hover::after {
   opacity: 0.5;
 }
 
-/**
-* Create the checkbox state for the tick
-*/
+/* Create the checkbox state for the tick */
 .checkboxCustom input[type=checkbox]:checked+label:after {
   opacity: 1;
   background: #5D8EE4;

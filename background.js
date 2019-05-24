@@ -17,10 +17,10 @@ var workTime = 0,
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 0.3,
-    workRepeats: 3,
-    shortBreak: 0.1,
-    longBreak: 0.2,
+    workTime: 60, 
+    workRepeats: 4,
+    shortBreak: 5,
+    longBreak: 10,
     longBreakAfter: 2,
     showNotifications: true 
   }, function (items) {
@@ -40,10 +40,11 @@ function calcAmountOfLongBreaks() {
   if (workRepeats <= longBreakAfter) {
     return amount;
   } else {
-    if (workRepeats % longBreakAfter == 0) {
+    console.log(workRepeats % longBreakAfter, workRepeats/longBreakAfter)
+    if (workRepeats % longBreakAfter === 0) {
       amount = workRepeats / longBreakAfter - 1;
     } else {
-      amount = workRepeats / longBreakAfter;
+      amount = Math.floor(workRepeats / longBreakAfter);
     }
   }
   return amount;
@@ -197,6 +198,5 @@ function callNotification(msg) {
     iconUrl: `images/${isBreak ? 'break' : 'work'}-notification-64.png`
   }, function (nID) { 
     setTimeout(clearNotificaion, 5000);
-    // chrome.notifications.clear(nID);
   });
 }

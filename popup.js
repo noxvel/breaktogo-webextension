@@ -152,9 +152,11 @@ function updateCircle(data) {
     $('#workOrBreakLabel').text('Work Time');
   }
 
+  let timeDifference = data.currentTimerTime - data.currentTime;
+
   $('#currentRepeat').text(data.amountOfRepeats);
   $('#allRepeats').text(`/${data.workRepeats}`);
-  $('#timer').text(timerView`${Math.floor(data.currentTime / 60 / 60) % 60}:${Math.floor(data.currentTime / 60) % 60}:${data.currentTime % 60}`)
+  $('#timer').text(timerView`${Math.floor(timeDifference / 60 / 60) % 60}:${Math.floor(timeDifference / 60) % 60}:${timeDifference % 60}`)
 
   $('#play-btn').css("backgroundImage", `url('images/${!data.isPause ? 'pause' : 'play'}_${data.isBreak ? 'break' : 'work'}_normal.png')`);
 
@@ -232,10 +234,10 @@ function saveSettings() {
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 0.3,
-    workRepeats: 3,
-    shortBreak: 0.1,
-    longBreak: 0.2,
+    workTime: 60, 
+    workRepeats: 4,
+    shortBreak: 5,
+    longBreak: 10,
     longBreakAfter: 2,
     showNotifications: true
   }, function (items) {
