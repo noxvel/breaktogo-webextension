@@ -26,6 +26,7 @@ chrome.runtime.onMessage.addListener(
   });
 
 $(document).ready(function () {
+
   port = chrome.runtime.connect({
     name: "backGroundTimer"
   });
@@ -234,7 +235,7 @@ function saveSettings() {
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 60, 
+    workTime: 60,
     workRepeats: 4,
     shortBreak: 5,
     longBreak: 10,

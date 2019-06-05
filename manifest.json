@@ -28,7 +28,16 @@
   },
 
   "permissions": [
-    "notifications", "declarativeContent", "storage"
-  ]
+    "notifications", "declarativeContent", "storage", "activeTab", "tabs"
+  ],
 
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": ["jquery.modal.min.css"],
+      "js": ["jquery.min.js", "jquery.modal.min.js", "content.js"]
+    }
+  ]
 }

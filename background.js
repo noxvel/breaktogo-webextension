@@ -17,12 +17,12 @@ var workTime = 0,
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 60, 
+    workTime: 60,
     workRepeats: 4,
     shortBreak: 5,
     longBreak: 10,
     longBreakAfter: 2,
-    showNotifications: true 
+    showNotifications: true
   }, function (items) {
     workTime = items.workTime * 60;
     workRepeats = items.workRepeats;
@@ -35,12 +35,47 @@ function restoreSettings() {
   });
 }
 
+//------------BLOCK PAGES SECTION----------------------------------------------------
+const depricatedSites = ['facebook.com', 'reddit.com', 'habr.com']
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  toBlockPage(tab);
+});
+
+chrome.tabs.onCreated.addListener(function (tab) {
+  toBlockPage(tab);
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, (tab) => {
+    toBlockPage(tab);
+  })
+});
+
+function toBlockPage(tab) {
+
+  let result = depricatedSites.some((el) => {
+    let re = new RegExp(el, "g");
+    return re.test(tab.url);
+  });
+
+  if (result)
+    chrome.tabs.sendMessage(tab.id, { "message": "block_page", "isBreak": isBreak, "isTimer": timer !== null });
+}
+
+function checkActiveTabToBlock() {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    var activeTab = tabs[0];
+    toBlockPage(activeTab);
+  });
+}
+//-------------------------------------------------------
+
 function calcAmountOfLongBreaks() {
   let amount = 0
   if (workRepeats <= longBreakAfter) {
     return amount;
   } else {
-    console.log(workRepeats % longBreakAfter, workRepeats/longBreakAfter)
     if (workRepeats % longBreakAfter === 0) {
       amount = workRepeats / longBreakAfter - 1;
     } else {
@@ -57,6 +92,7 @@ function calcAllTime() {
 }
 
 function startTimer() {
+
   if (allTime === 0)
     restoreSettings();
 
@@ -91,6 +127,8 @@ function update() {
       discardTimer();
       sendDataToPopup('end');
       chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
+      // Block page if necessary
+      checkActiveTabToBlock();
       return;
     }
     if (!isBreak && currentAllTime !== 1) {
@@ -100,30 +138,32 @@ function update() {
         currentTimerTime = shortBreak;
       }
       isBreak = true;
-      
+
       // Show notifications if appropriate setting is true
-      if(showNotifications) callNotification("It's time to have some rest!");
+      if (showNotifications) callNotification("It's time to have some rest!");
     } else {
       currentTimerTime = workTime
       amountOfRepeats++;
       isBreak = false;
-      
+
       // Show notifications if appropriate setting is true
-      if(showNotifications) callNotification("It's time back to work!");
+      if (showNotifications) callNotification("It's time back to work!");
     }
     chrome.browserAction.setIcon({ path: `icons/icon-${isBreak ? 'break-32' : 'work-32'}.png` });
     sendDataToPopup();
-    
+
     if (timer === null) {
       timer = setInterval(update, 1000);
       // sendDataToPopup();
     }
+    // Block page if necessary
+    checkActiveTabToBlock();
   } else {
     currentTime++;
     sendDataToPopup();
   }
   currentAllTime++;
-  
+
 }
 
 function sendDataToPopup(cmd = '') {
@@ -152,7 +192,7 @@ chrome.runtime.onConnect.addListener(function (port) {
       startTimer();
       port.postMessage({
         answer: "startTimer",
-        data: getTimerData() 
+        data: getTimerData()
       });
     } else if (msg.cmd === "pauseTimer") {
       pauseTimer();
@@ -164,29 +204,29 @@ chrome.runtime.onConnect.addListener(function (port) {
       discardTimer();
       port.postMessage({
         answer: "discardTimer",
-        data: getTimerData() 
+        data: getTimerData()
       });
     }
 
   });
 });
 
-function getTimerData(){
+function getTimerData() {
   return {
-      currentTimerTime: currentTimerTime,
-      currentTime: currentTime,
-      allTime: allTime,
-      currentAllTime: currentAllTime,
-      isBreak: isBreak,
-      isPause: isPause,
-      amountOfRepeats: amountOfRepeats,
-      workRepeats: workRepeats,
-      isTimer: timer !== null,
-    };
+    currentTimerTime: currentTimerTime,
+    currentTime: currentTime,
+    allTime: allTime,
+    currentAllTime: currentAllTime,
+    isBreak: isBreak,
+    isPause: isPause,
+    amountOfRepeats: amountOfRepeats,
+    workRepeats: workRepeats,
+    isTimer: timer !== null,
+  };
 }
 //////////////////////////////////////////////////////
 
-function clearNotificaion(){
+function clearNotificaion() {
   chrome.notifications.clear('reportBreakToGo')
 }
 
@@ -196,7 +236,7 @@ function callNotification(msg) {
     title: "BreakToGo",
     message: msg,
     iconUrl: `images/${isBreak ? 'break' : 'work'}-notification-64.png`
-  }, function (nID) { 
+  }, function (nID) {
     setTimeout(clearNotificaion, 5000);
   });
 }
