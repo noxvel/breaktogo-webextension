@@ -19,6 +19,7 @@ function saveSettings() {
   let longBreak = $('#longBreak').val();
   let longBreakAfter = $('#longBreakAfter').val();
   let showNotifications = $('#showNotifications').is(':checked');
+  let blockSites = $('#blockSites').is(':checked');
 
   chrome.storage.sync.set({
     workTime: workTime,
@@ -26,8 +27,12 @@ function saveSettings() {
     shortBreak: shortBreak,
     longBreak: longBreak,
     longBreakAfter: longBreakAfter,
-    showNotifications: showNotifications
+    showNotifications: showNotifications,
+    blockSites: blockSites
   }, function () {
+    chrome.tabs.getCurrent(function (tab) {
+      chrome.tabs.remove(tab.id, function () { });
+    });
     // // Update status to let user know options were saved.
     // var status = document.getElementById('status');
     // status.textContent = 'Options saved.';
@@ -46,7 +51,8 @@ function restoreSettings() {
     shortBreak: 0.1,
     longBreak: 0.2,
     longBreakAfter: 2,
-    showNotifications: true
+    showNotifications: true,
+    blockSites: false
   }, function (items) {
     $('#workTime').val(items.workTime);
     $('#workRepeats').val(items.workRepeats);
@@ -54,5 +60,6 @@ function restoreSettings() {
     $('#longBreak').val(items.longBreak);
     $('#longBreakAfter').val(items.longBreakAfter);
     $('#showNotifications').prop('checked', items.showNotifications);
+    $('#blockSites').prop('checked', items.blockSites);
   });
 }

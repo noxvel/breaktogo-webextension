@@ -23,7 +23,7 @@
   },
 
   "background": {
-    "scripts": ["jquery.min.js", "background.js"],
+    "scripts": ["libs/jquery.min.js", "background.js"],
     "persistent": false
   },
 
@@ -31,13 +31,15 @@
     "notifications", "declarativeContent", "storage", "activeTab", "tabs"
   ],
 
+  "options_page": "options-page/options.html",
+ 
   "content_scripts": [
     {
       "matches": [
         "<all_urls>"
       ],
-      "css": ["jquery.modal.min.css"],
-      "js": ["jquery.min.js", "jquery.modal.min.js", "content.js"]
+      "css": ["libs/jquery.modal.min.css", "content.css"],
+      "js": ["libs/jquery.min.js", "libs/jquery.modal.min.js", "content.js"]
     }
   ]
 }

@@ -10,6 +10,7 @@ var workTime = 0,
   allTime = 0,
   amountOfRepeats = 0,
   showNotifications,
+  blockSites,
   isBreak = false,
   isPause = true,
   timer = null
@@ -22,7 +23,8 @@ function restoreSettings() {
     shortBreak: 5,
     longBreak: 10,
     longBreakAfter: 2,
-    showNotifications: true
+    showNotifications: true,
+    blockSites: false
   }, function (items) {
     workTime = items.workTime * 60;
     workRepeats = items.workRepeats;
@@ -30,44 +32,50 @@ function restoreSettings() {
     longBreak = items.longBreak * 60;
     longBreakAfter = items.longBreakAfter;
     showNotifications = items.showNotifications;
+    blockSites = items.blockSites;
     amountOfLongBreaks = calcAmountOfLongBreaks();
     allTime = calcAllTime();
   });
 }
 
 //------------BLOCK PAGES SECTION----------------------------------------------------
-const depricatedSites = ['facebook.com', 'reddit.com', 'habr.com']
+const depricatedSites = ['facebook.com', 'reddit.com', 'habr.com', 'itc.ua']
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  toBlockPage(tab);
-});
-
-chrome.tabs.onCreated.addListener(function (tab) {
-  toBlockPage(tab);
-});
-
-chrome.tabs.onActivated.addListener(function (activeInfo) {
-  chrome.tabs.get(activeInfo.tabId, (tab) => {
-    toBlockPage(tab);
-  })
-});
-
-function toBlockPage(tab) {
-
-  let result = depricatedSites.some((el) => {
-    let re = new RegExp(el, "g");
-    return re.test(tab.url);
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    toBlockPage(tab, blockSites);
   });
 
-  if (result)
-    chrome.tabs.sendMessage(tab.id, { "message": "block_page", "isBreak": isBreak, "isTimer": timer !== null });
+  chrome.tabs.onCreated.addListener(function (tab) {
+    toBlockPage(tab, blockSites);
+  });
+
+  chrome.tabs.onActivated.addListener(function (activeInfo) {
+    chrome.tabs.get(activeInfo.tabId, (tab) => {
+      toBlockPage(tab, blockSites);
+    })
+  });
+});
+
+function toBlockPage(tab, toBlock) {
+  if (toBlock) {
+    let result = depricatedSites.some((el) => {
+      let re = new RegExp(el, "g");
+      return re.test(tab.url);
+    });
+
+    if (result)
+      chrome.tabs.sendMessage(tab.id, { "message": "block_page", "isBreak": isBreak, "isTimer": timer !== null });
+  }
 }
 
-function checkActiveTabToBlock() {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    var activeTab = tabs[0];
-    toBlockPage(activeTab);
-  });
+function checkActiveTabToBlock(toBlock) {
+  if (toBlock) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      var activeTab = tabs[0];
+      toBlockPage(activeTab, toBlock);
+    });
+  }
 }
 //-------------------------------------------------------
 
@@ -117,6 +125,7 @@ function discardTimer() {
   amountOfRepeats = 0;
   amountOfLongBreaks = 0;
   allTime = 0;
+  checkActiveTabToBlock(true);
   chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
 }
 
@@ -128,7 +137,7 @@ function update() {
       sendDataToPopup('end');
       chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
       // Block page if necessary
-      checkActiveTabToBlock();
+      checkActiveTabToBlock(blockSites);
       return;
     }
     if (!isBreak && currentAllTime !== 1) {
@@ -157,7 +166,7 @@ function update() {
       // sendDataToPopup();
     }
     // Block page if necessary
-    checkActiveTabToBlock();
+    checkActiveTabToBlock(blockSites);
   } else {
     currentTime++;
     sendDataToPopup();

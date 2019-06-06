@@ -3,7 +3,7 @@
 
 <head>
   <link rel="stylesheet" href="appStyle.css">
-  <link rel="stylesheet" href="settingsViewStyle.css">
+  <!-- <link rel="stylesheet" href="settingsViewStyle.css"> -->
   <style>
   </style>
 </head>
@@ -29,7 +29,7 @@
     <canvas style="margin: 0 auto" id="genProgress"></canvas>
   </div>
 
-  <div id="settingsView">
+  <!-- <div id="settingsView">
     <form id="settingsForm">
       <h2>Time Settings</h2>
       <div style='width: 330px; border-top: 1px solid #aad2d4; margin-bottom: 10px;'></div>
@@ -37,31 +37,36 @@
         <div>
           <div>Work Time</div>
           <div class="inputFields">
-            <input id="workTime" type="number" min="0" max="1440" step="0.1" required autocomplete="off"><span> minutes</span>
+            <input id="workTime" type="number" min="0" max="1440" step="0.1" required autocomplete="off"><span>
+              minutes</span>
           </div>
         </div>
         <div>
           <span>Work Repeats</span>
           <div class="inputFields">
-            <input id="workRepeats" type="number" min="0" max="99" step="1" required autocomplete="off"<span> repeats </span>
+            <input id="workRepeats" type="number" min="0" max="99" step="1" required autocomplete="off" <span> repeats
+            </span>
           </div>
         </div>
         <div>
           <span>Short Break</span>
           <div class="inputFields">
-            <input id="shortBreak" type="number" min="0" max="1440" step="0.1" required autocomplete="off"><span> minutes</span>
+            <input id="shortBreak" type="number" min="0" max="1440" step="0.1" required autocomplete="off"><span>
+              minutes</span>
           </div>
         </div>
         <div>
           <span>Long Break</span>
           <div class="inputFields">
-            <input id="longBreak" type="number" min="0" max="1440" step="0.1" required autocomplete="off"><span> minutes</span>
+            <input id="longBreak" type="number" min="0" max="1440" step="0.1" required autocomplete="off"><span>
+              minutes</span>
           </div>
         </div>
         <div>
           <span>Long Break After</span>
           <div class="inputFields">
-            <input id="longBreakAfter" type="number" min="0" max="99" step="1" required autocomplete="off"><span> repeats </span>
+            <input id="longBreakAfter" type="number" min="0" max="99" step="1" required autocomplete="off"><span>
+              repeats </span>
           </div>
         </div>
       </div>
@@ -70,17 +75,23 @@
       <div style="width: 220px;">
         <span>Show Notifications</span>
         <div class="checkboxCustom inputFields">
-          <input type="checkbox" value="1" id="showNotifications" name="" />
+          <input type="checkbox" value="1" id="showNotifications" name="showNotifications" />
           <label for="showNotifications"></label>
+        </div>
+      </div>
+      <div style="width: 220px; margin-top: 10px;">
+        <span>Block sites while work</span>
+        <div class="checkboxCustom inputFields">
+          <input type="checkbox" value="1" id="blockSites" name="blockSites" />
+          <label for="blockSites"></label>
         </div>
       </div>
 
       <button type="submit" id="save-settings-btn">Save Changes</button>
     </form>
+  </div> -->
 
-  </div>
-
-  <script src="jquery.min.js"></script>
+  <script src="libs/jquery.min.js"></script>
   <script src="popup.js"></script>
 </body>
 

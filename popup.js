@@ -101,7 +101,13 @@ function discardClock() {
 }
 
 function displaySettings() {
-  $('#settingsView').toggleClass('show');
+  if (chrome.runtime.openOptionsPage) {
+    chrome.runtime.openOptionsPage();
+  } else {
+    window.open(chrome.runtime.getURL('options-page/options.html'));
+  }
+
+  // $('#settingsView').toggleClass('show');
 }
 
 function drawClock() {
@@ -212,6 +218,7 @@ function saveSettings() {
   let longBreak = $('#longBreak').val();
   let longBreakAfter = $('#longBreakAfter').val();
   let showNotifications = $('#showNotifications').is(':checked');
+  let blockSites = $('#blockSites').is(':checked');
 
   chrome.storage.sync.set({
     workTime: workTime,
@@ -219,7 +226,8 @@ function saveSettings() {
     shortBreak: shortBreak,
     longBreak: longBreak,
     longBreakAfter: longBreakAfter,
-    showNotifications: showNotifications
+    showNotifications: showNotifications,
+    blockSites: blockSites
   }, function () {
     $('#settingsView').toggleClass('show');
     // // Update status to let user know options were saved.
@@ -240,7 +248,8 @@ function restoreSettings() {
     shortBreak: 5,
     longBreak: 10,
     longBreakAfter: 2,
-    showNotifications: true
+    showNotifications: true,
+    blockSites: false
   }, function (items) {
     $('#workTime').val(items.workTime);
     $('#workRepeats').val(items.workRepeats);
@@ -248,5 +257,6 @@ function restoreSettings() {
     $('#longBreak').val(items.longBreak);
     $('#longBreakAfter').val(items.longBreakAfter);
     $('#showNotifications').prop('checked', items.showNotifications);
+    $('#blockSites').prop('checked', items.blockSites);
   });
 }

@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Helvetica Neue Light';
+  src: url('fonts/HelveticaNeue-Light.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Helvetica Neue Medium';
+  src: url('fonts/HelveticaNeue-Medium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #settingsView {
   position: relative;
   width: inherit;
