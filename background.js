@@ -11,6 +11,7 @@ var workTime = 0,
   amountOfRepeats = 0,
   showNotifications,
   blockSites,
+  blockListSites = [],
   isBreak = false,
   isPause = true,
   timer = null
@@ -24,7 +25,8 @@ function restoreSettings() {
     longBreak: 10,
     longBreakAfter: 2,
     showNotifications: true,
-    blockSites: false
+    blockSites: false,
+    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com'] 
   }, function (items) {
     workTime = items.workTime * 60;
     workRepeats = items.workRepeats;
@@ -33,13 +35,13 @@ function restoreSettings() {
     longBreakAfter = items.longBreakAfter;
     showNotifications = items.showNotifications;
     blockSites = items.blockSites;
+    blockListSites = items.blockListSites;
     amountOfLongBreaks = calcAmountOfLongBreaks();
     allTime = calcAllTime();
   });
 }
 
 //------------BLOCK PAGES SECTION----------------------------------------------------
-const depricatedSites = ['facebook.com', 'reddit.com', 'habr.com', 'itc.ua']
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -59,7 +61,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 function toBlockPage(tab, toBlock) {
   if (toBlock) {
-    let result = depricatedSites.some((el) => {
+    let result = blockListSites.some((el) => {
       let re = new RegExp(el, "g");
       return re.test(tab.url);
     });

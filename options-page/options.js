@@ -1,4 +1,4 @@
-
+var globalBlockList = [];
 
 $(document).ready(function () {
 
@@ -8,11 +8,24 @@ $(document).ready(function () {
     event.preventDefault();
     saveSettings();
   });
+  $("#newSiteToBlockBtn").on('click', (event) => {
+    addNewSiteToBlockList();
+    event.preventDefault();
+    event.stopPropagation();
+  });
 });
+
+function addNewSiteToBlockList() {
+  let newSite = $('#newSiteToBlock');
+  if(newSite.val() !== ''){
+    globalBlockList.push(newSite.val());
+    newSite.val('');
+    updateBlockListView();
+  }
+}
 
 // Saves settings to chrome.storage
 function saveSettings() {
-
   let workTime = $('#workTime').val();
   let workRepeats = $('#workRepeats').val();
   let shortBreak = $('#shortBreak').val();
@@ -20,6 +33,7 @@ function saveSettings() {
   let longBreakAfter = $('#longBreakAfter').val();
   let showNotifications = $('#showNotifications').is(':checked');
   let blockSites = $('#blockSites').is(':checked');
+  // let blockListSites = $('#blockListSites')
 
   chrome.storage.sync.set({
     workTime: workTime,
@@ -28,7 +42,8 @@ function saveSettings() {
     longBreak: longBreak,
     longBreakAfter: longBreakAfter,
     showNotifications: showNotifications,
-    blockSites: blockSites
+    blockSites: blockSites,
+    blockListSites: globalBlockList
   }, function () {
     chrome.tabs.getCurrent(function (tab) {
       chrome.tabs.remove(tab.id, function () { });
@@ -52,7 +67,8 @@ function restoreSettings() {
     longBreak: 0.2,
     longBreakAfter: 2,
     showNotifications: true,
-    blockSites: false
+    blockSites: false,
+    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com']
   }, function (items) {
     $('#workTime').val(items.workTime);
     $('#workRepeats').val(items.workRepeats);
@@ -61,5 +77,34 @@ function restoreSettings() {
     $('#longBreakAfter').val(items.longBreakAfter);
     $('#showNotifications').prop('checked', items.showNotifications);
     $('#blockSites').prop('checked', items.blockSites);
+
+    globalBlockList = items.blockListSites;
+    updateBlockListView();
   });
+}
+
+function updateBlockListView() {
+
+  let bListEl = $('#blockListSites');
+  bListEl.empty();
+  globalBlockList.forEach((el) => {
+    let li = $('<li/>')
+      .text(el)
+      .appendTo(bListEl);
+    let aaa = $('<a/>')
+      .addClass('delete-btn')
+      .attr('href', '#')
+      // .text('✖')
+      .on('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        deleteSelectedSiteFromBlockList(event.currentTarget);
+      })
+      .appendTo(li);
+  });
+}
+
+function deleteSelectedSiteFromBlockList(delBtn){
+  globalBlockList = globalBlockList.filter(n => { return n !== $(delBtn).parent().text(); }); 
+  updateBlockListView()
 }
