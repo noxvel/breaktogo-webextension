@@ -8,16 +8,27 @@ $(document).ready(function () {
     event.preventDefault();
     saveSettings();
   });
+
   $("#newSiteToBlockBtn").on('click', (event) => {
     addNewSiteToBlockList();
     event.preventDefault();
     event.stopPropagation();
+  })
+
+  $("#newSiteToBlock").keypress(function (event) {
+    let keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == '13') {
+      addNewSiteToBlockList();
+      event.stopPropagation();
+      event.preventDefault();
+    }
   });
+
 });
 
 function addNewSiteToBlockList() {
   let newSite = $('#newSiteToBlock');
-  if(newSite.val() !== ''){
+  if (newSite.val() !== '') {
     globalBlockList.push(newSite.val());
     newSite.val('');
     updateBlockListView();
@@ -61,14 +72,14 @@ function saveSettings() {
 function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
-    workTime: 0.3,
-    workRepeats: 3,
-    shortBreak: 0.1,
-    longBreak: 0.2,
+    workTime: 60,
+    workRepeats: 6,
+    shortBreak: 5,
+    longBreak: 10,
     longBreakAfter: 2,
     showNotifications: true,
     blockSites: false,
-    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com']
+    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com'] 
   }, function (items) {
     $('#workTime').val(items.workTime);
     $('#workRepeats').val(items.workRepeats);
@@ -91,7 +102,7 @@ function updateBlockListView() {
     let li = $('<li/>')
       .text(el)
       .appendTo(bListEl);
-    let aaa = $('<a/>')
+    $('<a/>')
       .addClass('delete-btn')
       .attr('href', '#')
       // .text('✖')
@@ -104,7 +115,7 @@ function updateBlockListView() {
   });
 }
 
-function deleteSelectedSiteFromBlockList(delBtn){
-  globalBlockList = globalBlockList.filter(n => { return n !== $(delBtn).parent().text(); }); 
+function deleteSelectedSiteFromBlockList(delBtn) {
+  globalBlockList = globalBlockList.filter(n => { return n !== $(delBtn).parent().text(); });
   updateBlockListView()
 }

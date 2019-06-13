@@ -20,7 +20,7 @@ function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
     workTime: 60,
-    workRepeats: 4,
+    workRepeats: 6,
     shortBreak: 5,
     longBreak: 10,
     longBreakAfter: 2,

@@ -30,17 +30,11 @@ $(document).ready(function () {
   port = chrome.runtime.connect({
     name: "backGroundTimer"
   });
-  restoreSettings();
   drawClock();
   drawGenProgress();
   $('#play-btn').on('click', toggleClock);
   $('#discard-btn').on('click', discardClock);
   $('#settings-btn').on('click', displaySettings);
-
-  $("#settingsForm").submit((event) => {
-    event.preventDefault();
-    saveSettings();
-  });
 
   port.onMessage.addListener(function (msg) {
     updateTimerData(msg.data);
@@ -207,56 +201,4 @@ function updateProgress(data) {
   ctxProgress.stroke();
 
   $('#progressPersent').text(`${Math.floor(progress * 100)}%`)
-}
-
-// Saves settings to chrome.storage
-function saveSettings() {
-
-  let workTime = $('#workTime').val();
-  let workRepeats = $('#workRepeats').val();
-  let shortBreak = $('#shortBreak').val();
-  let longBreak = $('#longBreak').val();
-  let longBreakAfter = $('#longBreakAfter').val();
-  let showNotifications = $('#showNotifications').is(':checked');
-  let blockSites = $('#blockSites').is(':checked');
-
-  chrome.storage.sync.set({
-    workTime: workTime,
-    workRepeats: workRepeats,
-    shortBreak: shortBreak,
-    longBreak: longBreak,
-    longBreakAfter: longBreakAfter,
-    showNotifications: showNotifications,
-    blockSites: blockSites
-  }, function () {
-    $('#settingsView').toggleClass('show');
-    // // Update status to let user know options were saved.
-    // var status = document.getElementById('status');
-    // status.textContent = 'Options saved.';
-    // setTimeout(function() {
-    //   status.textContent = '';
-    // }, 750);
-  });
-}
-
-// Restores settings using the preferences stored in chrome.storage.
-function restoreSettings() {
-  // Use default values
-  chrome.storage.sync.get({
-    workTime: 60,
-    workRepeats: 4,
-    shortBreak: 5,
-    longBreak: 10,
-    longBreakAfter: 2,
-    showNotifications: true,
-    blockSites: false
-  }, function (items) {
-    $('#workTime').val(items.workTime);
-    $('#workRepeats').val(items.workRepeats);
-    $('#shortBreak').val(items.shortBreak);
-    $('#longBreak').val(items.longBreak);
-    $('#longBreakAfter').val(items.longBreakAfter);
-    $('#showNotifications').prop('checked', items.showNotifications);
-    $('#blockSites').prop('checked', items.blockSites);
-  });
 }
