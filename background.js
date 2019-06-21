@@ -11,6 +11,7 @@ var workTime = 0,
   amountOfRepeats = 0,
   showNotifications,
   blockSites,
+  autoStartParam,
   blockListSites = [],
   isBreak = false,
   isPause = true,
@@ -20,13 +21,14 @@ function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
     workTime: 60,
-    workRepeats: 6,
+    workRepeats: 8,
     shortBreak: 5,
-    longBreak: 10,
+    longBreak: 15,
     longBreakAfter: 2,
     showNotifications: true,
     blockSites: false,
-    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com'] 
+    autoStartParam: false,
+    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com']
   }, function (items) {
     workTime = items.workTime * 60;
     workRepeats = items.workRepeats;
@@ -36,12 +38,27 @@ function restoreSettings() {
     showNotifications = items.showNotifications;
     blockSites = items.blockSites;
     blockListSites = items.blockListSites;
+    autoStartParam = items.autoStartParam;
     amountOfLongBreaks = calcAmountOfLongBreaks();
     allTime = calcAllTime();
   });
 }
 
-//------------BLOCK PAGES SECTION----------------------------------------------------
+const refreshSettings = () => {
+  chrome.storage.sync.get({
+    showNotifications: true,
+    blockSites: false,
+    autoStartParam: false,
+    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com']
+  }, (items) => {
+    showNotifications = items.showNotifications;
+    blockSites = items.blockSites;
+    blockListSites = items.blockListSites;
+    autoStartParam = items.autoStartParam;
+  });
+}
+
+//------------BLOCK PAGES AND AUTOSTART SECTION----------------------------------------------------
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -57,6 +74,24 @@ chrome.runtime.onInstalled.addListener(() => {
       toBlockPage(tab, blockSites);
     })
   });
+
+  // check time for auto start timer
+  window.setInterval(function () { // Set interval for checking
+    if (timer === null && autoStartParam) {
+      chrome.storage.sync.get({
+        autoStartTime: '09:00'
+      }, function (items) {
+        let autoStartTime = items.autoStartTime;
+        let date = new Date(); // Create a Date object to find out what time it is
+        if (date.getDay() !== 0 && date.getDay() !== 6) {
+          if (date.getHours() === parseInt(autoStartTime.substr(0, 2)) && date.getMinutes() === parseInt(autoStartTime.substr(3, 2))) { // Check the time
+            startTimer();
+          }
+        }
+      });
+    }
+  }, 60000); // Repeat every 60000 milliseconds (1 minute)
+
 });
 
 function toBlockPage(tab, toBlock) {
@@ -158,7 +193,7 @@ function update() {
       isBreak = false;
 
       // Show notifications if appropriate setting is true
-      if (showNotifications) callNotification("It's time back to work!");
+      if (showNotifications && amountOfRepeats !== 1) callNotification("It's time back to work!");
     }
     chrome.browserAction.setIcon({ path: `icons/icon-${isBreak ? 'break-32' : 'work-32'}.png` });
     sendDataToPopup();
@@ -190,6 +225,14 @@ function sendDataToPopup(cmd = '') {
     });
   }
 }
+
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    if (request.msg === "refresh_settings") {
+      refreshSettings();
+    }
+  }
+);
 
 chrome.runtime.onConnect.addListener(function (port) {
   port.onMessage.addListener(function (msg) {

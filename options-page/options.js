@@ -24,6 +24,21 @@ $(document).ready(function () {
     }
   });
 
+  $(".calc-end-time").change(function () {
+    let info =
+    {
+      workTime: $('#workTime').val(),
+      workRepeats: $('#workRepeats').val(),
+      shortBreak: $('#shortBreak').val(),
+      longBreak: $('#longBreak').val(),
+      longBreakAfter: $('#longBreakAfter').val(),
+      showNotifications: $('#showNotifications').is(':checked'),
+      blockSites: $('#blockSites').is(':checked'),
+      autoStartTime: $('#autoStartTime').val()
+    };
+    $('#endAutoStartTime').text(calcAllTime(info));
+  });
+
 });
 
 function addNewSiteToBlockList() {
@@ -44,8 +59,9 @@ function saveSettings() {
   let longBreakAfter = $('#longBreakAfter').val();
   let showNotifications = $('#showNotifications').is(':checked');
   let blockSites = $('#blockSites').is(':checked');
+  let autoStartParam = $('#autoStartParam').is(':checked');
+  let autoStartTime = $('#autoStartTime').val();
   // let blockListSites = $('#blockListSites')
-
   chrome.storage.sync.set({
     workTime: workTime,
     workRepeats: workRepeats,
@@ -54,17 +70,16 @@ function saveSettings() {
     longBreakAfter: longBreakAfter,
     showNotifications: showNotifications,
     blockSites: blockSites,
-    blockListSites: globalBlockList
+    blockListSites: globalBlockList,
+    autoStartTime: autoStartTime,
+    autoStartParam: autoStartParam
   }, function () {
+    chrome.runtime.sendMessage({
+      msg: 'refresh_settings'
+    });
     chrome.tabs.getCurrent(function (tab) {
       chrome.tabs.remove(tab.id, function () { });
     });
-    // // Update status to let user know options were saved.
-    // var status = document.getElementById('status');
-    // status.textContent = 'Options saved.';
-    // setTimeout(function() {
-    //   status.textContent = '';
-    // }, 750);
   });
 }
 
@@ -73,13 +88,15 @@ function restoreSettings() {
   // Use default values
   chrome.storage.sync.get({
     workTime: 60,
-    workRepeats: 6,
+    workRepeats: 8,
     shortBreak: 5,
-    longBreak: 10,
+    longBreak: 15,
     longBreakAfter: 2,
     showNotifications: true,
     blockSites: false,
-    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com'] 
+    blockListSites: ['facebook.com', 'reddit.com', 'twitter.com'],
+    autoStartTime: '09:00',
+    autoStartParam: false
   }, function (items) {
     $('#workTime').val(items.workTime);
     $('#workRepeats').val(items.workRepeats);
@@ -88,10 +105,43 @@ function restoreSettings() {
     $('#longBreakAfter').val(items.longBreakAfter);
     $('#showNotifications').prop('checked', items.showNotifications);
     $('#blockSites').prop('checked', items.blockSites);
+    $('#autoStartParam').prop('checked', items.autoStartParam);
+    $('#autoStartTime').val(items.autoStartTime);
 
     globalBlockList = items.blockListSites;
     updateBlockListView();
+
+    $('#endAutoStartTime').text(calcAllTime(items));
   });
+}
+
+function timerView(strings, hoursExp, minutesExp) {
+
+  if (hoursExp.toString().length < 2)
+    hoursExp = '0' + hoursExp;
+  if (minutesExp.toString().length < 2)
+    minutesExp = '0' + minutesExp;
+
+  return `${hoursExp}:${minutesExp}`;
+}
+
+function calcAllTime(i) {
+  let amountOfLongBreaks = 0;
+  if (i.workRepeats <= i.longBreakAfter) {
+  } else {
+    if (i.workRepeats % i.longBreakAfter === 0) {
+      amountOfLongBreaks = i.workRepeats / i.longBreakAfter - 1;
+    } else {
+      amountOfLongBreaks = Math.floor(i.workRepeats / i.longBreakAfter);
+    }
+  }
+
+  let allTime = i.workTime * i.workRepeats + amountOfLongBreaks * i.longBreak +
+    i.shortBreak * ((i.workRepeats - amountOfLongBreaks) - 1);
+  let currentStartTime = (parseInt(i.autoStartTime.substr(0, 2)) * 60) + parseInt(i.autoStartTime.substr(3, 2));
+  allTime += currentStartTime;
+
+  return timerView`${Math.floor((allTime / 60) % 24)}:${allTime % 60}`;
 }
 
 function updateBlockListView() {

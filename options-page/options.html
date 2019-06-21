@@ -18,7 +18,7 @@
           <div class="flex-space-between">
             <div>Work Time</div>
             <div class="inputFields">
-              <input id="workTime" type="number" min="0" max="1440" step="1" class="input-field" required
+              <input id="workTime" type="number" min="0" max="1440" step="1" class="input-field calc-end-time" required
                 autocomplete="off"><span>
                 minutes</span>
             </div>
@@ -26,23 +26,23 @@
           <div class="flex-space-between">
             <span>Work Repeats</span>
             <div class="inputFields">
-              <input id="workRepeats" type="number" min="0" max="99" step="1" re class="input-field" quired
-                autocomplete="off"><span> repeats
+              <input id="workRepeats" type="number" min="0" max="99" step="1" re class="input-field calc-end-time"
+                required autocomplete="off"><span> repeats
               </span>
             </div>
           </div>
           <div class="flex-space-between">
             <span>Short Break</span>
             <div class="inputFields">
-              <input id="shortBreak" type="number" min="0" max="1440" step="1" class="input-field" required
-                autocomplete="off"><span>
+              <input id="shortBreak" type="number" min="0" max="1440" step="1" class="input-field calc-end-time"
+                required autocomplete="off"><span>
                 minutes</span>
             </div>
           </div>
           <div class="flex-space-between">
             <span>Long Break</span>
             <div class="inputFields">
-              <input id="longBreak" type="number" min="0" max="1440" step="1" class="input-field" required
+              <input id="longBreak" type="number" min="0" max="1440" step="1" class="input-field calc-end-time" required
                 autocomplete="off"><span>
                 minutes</span>
             </div>
@@ -50,8 +50,8 @@
           <div class="flex-space-between">
             <span>Long Break After</span>
             <div class="inputFields">
-              <input id="longBreakAfter" type="number" min="0" max="99" step="1" class="input-field" required
-                autocomplete="off"><span>
+              <input id="longBreakAfter" type="number" min="0" max="99" step="1" class="input-field calc-end-time"
+                required autocomplete="off"><span>
                 repeats </span>
             </div>
           </div>
@@ -76,6 +76,21 @@
               <label for="blockSites"></label>
             </div>
           </div>
+          <div style="margin-top: 15px;">
+            <span>Automatically start the timer on workdays</span>
+            <div class="checkboxCustom inputFields">
+              <input type="checkbox" value="1" id="autoStartParam" name="autoStartParam" />
+              <label for="autoStartParam"></label>
+            </div>
+          </div>
+          <div class="flex-space-between" style="margin-top: 10px;">
+            <span>Autostart time</span>
+            <!-- <div class="inputFields"> -->
+            <input id="autoStartTime" type="time" name="autoStartTime" class="input-field calc-end-time" required
+              autocomplete="off">
+            <span>, the timer will end at </span><span id="endAutoStartTime"></span>
+            <!-- </div> -->
+          </div>
         </div>
       </section>
 
@@ -83,8 +98,8 @@
         <h2>Blocklist of sites</h2>
         <div class="line"></div>
         <div class="flex-space-between">
-          <input style="width: 86%;" placeholder="Website URL" class="input-field" type="text"
-            autocomplete="off" name="newSiteToBlock" id="newSiteToBlock">
+          <input style="width: 86%;" placeholder="Website URL" class="input-field" type="text" autocomplete="off"
+            name="newSiteToBlock" id="newSiteToBlock">
           <input style="width: 12%;" class="input-field" id="newSiteToBlockBtn" type="button" value="+">
         </div>
         <ul id="blockListSites"></ul>

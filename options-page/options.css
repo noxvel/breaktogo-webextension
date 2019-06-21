@@ -28,7 +28,7 @@
 
 section {
   margin-bottom: 10px;
-  width: 370px;
+  width: 375px;
 }
 
 section>h2 {
@@ -67,7 +67,7 @@ section>h2 {
 }
 
 #inputContainer {
-  height: 190px;
+  height: 210px;
   width: 370px;
   display: flex;
   flex-direction: column;
