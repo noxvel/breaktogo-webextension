@@ -60,38 +60,44 @@ const refreshSettings = () => {
 
 //------------BLOCK PAGES AND AUTOSTART SECTION----------------------------------------------------
 
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  toBlockPage(tab, blockSites);
+});
+
+chrome.tabs.onCreated.addListener(function (tab) {
+  toBlockPage(tab, blockSites);
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, (tab) => {
     toBlockPage(tab, blockSites);
-  });
+  })
+});
 
-  chrome.tabs.onCreated.addListener(function (tab) {
-    toBlockPage(tab, blockSites);
-  });
-
-  chrome.tabs.onActivated.addListener(function (activeInfo) {
-    chrome.tabs.get(activeInfo.tabId, (tab) => {
-      toBlockPage(tab, blockSites);
-    })
-  });
-
-  // check time for auto start timer
-  window.setInterval(function () { // Set interval for checking
-    if (timer === null && autoStartParam) {
-      chrome.storage.sync.get({
-        autoStartTime: '09:00'
-      }, function (items) {
-        let autoStartTime = items.autoStartTime;
-        let date = new Date(); // Create a Date object to find out what time it is
-        if (date.getDay() !== 0 && date.getDay() !== 6) {
-          if (date.getHours() === parseInt(autoStartTime.substr(0, 2)) && date.getMinutes() === parseInt(autoStartTime.substr(3, 2))) { // Check the time
-            startTimer();
-          }
+chrome.alarms.onAlarm.addListener((alarm) => {
+  chrome.storage.sync.get({
+    autoStartTime: '09:00',
+    autoStartParam: false
+  }, function (items) {
+    if (timer === null && items.autoStartParam) {
+      let autoStartTime = items.autoStartTime;
+      let date = new Date(); // Create a Date object to find out what time it is
+      if (date.getDay() !== 0 && date.getDay() !== 6) {
+        if (date.getHours() === parseInt(autoStartTime.substr(0, 2)) && date.getMinutes() === parseInt(autoStartTime.substr(3, 2))) { // Check the time
+          startTimer();
         }
-      });
+      }
     }
-  }, 60000); // Repeat every 60000 milliseconds (1 minute)
+  });
+});
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.alarms.create("autoStartCheck", { periodInMinutes: 1.0 })
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  refreshSettings();
+  chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
 });
 
 function toBlockPage(tab, toBlock) {

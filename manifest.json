@@ -1,6 +1,6 @@
 {
   "name": "Break To Go",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Simple time management web extension",
   "manifest_version": 2,
 
@@ -28,7 +28,7 @@
   },
 
   "permissions": [
-    "notifications", "declarativeContent", "storage", "activeTab", "tabs"
+    "notifications", "declarativeContent", "storage", "activeTab", "tabs", "alarms" 
   ],
 
   "options_page": "options-page/options.html",
