@@ -236,6 +236,8 @@ chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (request.msg === "refresh_settings") {
       refreshSettings();
+    }else if(request.msg === "getTimer"){
+      sendResponse({data: getTimerData()});
     }
   }
 );
@@ -243,12 +245,7 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onConnect.addListener(function (port) {
   port.onMessage.addListener(function (msg) {
 
-    if (msg.cmd === "getTimer") {
-      port.postMessage({
-        answer: "getTimer",
-        data: getTimerData()
-      });
-    } else if (msg.cmd === "startTimer") {
+    if (msg.cmd === "startTimer") {
       startTimer();
       port.postMessage({
         answer: "startTimer",

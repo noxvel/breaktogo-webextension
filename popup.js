@@ -27,22 +27,20 @@ chrome.runtime.onMessage.addListener(
 
 $(document).ready(function () {
 
+  drawClock();
+  drawGenProgress();
+  getTimerInfoFromBackground();
+
   port = chrome.runtime.connect({
     name: "backGroundTimer"
   });
-  drawClock();
-  drawGenProgress();
   $('#play-btn').on('click', toggleClock);
   $('#discard-btn').on('click', discardClock);
   $('#settings-btn').on('click', displaySettings);
 
   port.onMessage.addListener(function (msg) {
     updateTimerData(msg.data);
-    if (msg.answer === "getTimer") {
-      if (msg.data.isTimer) {
-      } else {
-      }
-    } else if (msg.answer === "discardTimer") {
+    if (msg.answer === "discardTimer") {
       discardTimerFlag = true;
       ctxCircle.clearRect(0, 0, canvasCircle.width, canvasCircle.height);
       // updateCircle(msg.data);
@@ -53,13 +51,8 @@ $(document).ready(function () {
       $('#allRepeats').text('/0');
       $('#timer').text('00:00:00')
       $('#progressPersent').text('0%')
-    } else if (msg.answer === "pauseTimer") {
-    } else if (msg.answer === "startTimer") {
     }
-    $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
   });
-
-  getTimerInfoFromBackground();
 
 });
 
@@ -67,12 +60,21 @@ function updateTimerData(data) {
   isTimer = data.isTimer;
   globalIsBreak = data.isBreak;
   globalIsPause = data.isPause;
+  $('#play-btn').css("backgroundImage", `url('images/${!globalIsPause ? 'pause' : 'play'}_${globalIsBreak ? 'break' : 'work'}_normal.png')`);
 }
 
 function getTimerInfoFromBackground() {
-  port.postMessage({
-    cmd: 'getTimer'
-  });
+  chrome.runtime.sendMessage({
+    msg: 'getTimer'
+  }, (res) => {
+    updateTimerData(res.data);
+    updateCircle(res.data);
+    updateProgress(res.data);
+    if (res.data.allTime === 0) {
+      $('#workOrBreakLabel').text("Let's go");
+      $('#progressPersent').text('0%')
+    }
+  })
 }
 
 function toggleClock() {
