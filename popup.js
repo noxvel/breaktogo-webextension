@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(
     }
   });
 
-$(document).ready(function () {
+$(document).ready(() => {
 
   drawClock();
   drawGenProgress();
@@ -38,7 +38,7 @@ $(document).ready(function () {
   $('#discard-btn').on('click', discardClock);
   $('#settings-btn').on('click', displaySettings);
 
-  port.onMessage.addListener(function (msg) {
+  port.onMessage.addListener((msg) => {
     updateTimerData(msg.data);
     if (msg.answer === "discardTimer") {
       discardTimerFlag = true;

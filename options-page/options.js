@@ -1,6 +1,6 @@
 var globalBlockList = [];
 
-$(document).ready(function () {
+$(document).ready(() => {
 
   restoreSettings();
 
@@ -15,7 +15,7 @@ $(document).ready(function () {
     event.stopPropagation();
   })
 
-  $("#newSiteToBlock").keypress(function (event) {
+  $("#newSiteToBlock").keypress((event) => {
     let keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == '13') {
       addNewSiteToBlockList();
@@ -24,7 +24,7 @@ $(document).ready(function () {
     }
   });
 
-  $(".calc-end-time").change(function () {
+  $(".calc-end-time").change(() => {
     let info =
     {
       workTime: $('#workTime').val(),
@@ -73,12 +73,12 @@ function saveSettings() {
     blockListSites: globalBlockList,
     autoStartTime: autoStartTime,
     autoStartParam: autoStartParam
-  }, function () {
+  }, () => {
     chrome.runtime.sendMessage({
       msg: 'refresh_settings'
     });
-    chrome.tabs.getCurrent(function (tab) {
-      chrome.tabs.remove(tab.id, function () { });
+    chrome.tabs.getCurrent((tab) => {
+      chrome.tabs.remove(tab.id, () => { });
     });
   });
 }
@@ -97,7 +97,7 @@ function restoreSettings() {
     blockListSites: ['facebook.com', 'reddit.com', 'twitter.com'],
     autoStartTime: '09:00',
     autoStartParam: false
-  }, function (items) {
+  }, (items) => {
     $('#workTime').val(items.workTime);
     $('#workRepeats').val(items.workRepeats);
     $('#shortBreak').val(items.shortBreak);

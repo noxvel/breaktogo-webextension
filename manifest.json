@@ -1,6 +1,6 @@
 {
   "name": "Break To Go",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "Simple time management web extension",
   "manifest_version": 2,
 
@@ -24,7 +24,7 @@
 
   "background": {
     "scripts": ["libs/jquery.min.js", "background.js"],
-    "persistent": false
+    "persistent": true
   },
 
   "permissions": [

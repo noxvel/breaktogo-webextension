@@ -29,7 +29,7 @@ function restoreSettings() {
     blockSites: false,
     autoStartParam: false,
     blockListSites: ['facebook.com', 'reddit.com', 'twitter.com']
-  }, function (items) {
+  }, (items) => {
     workTime = items.workTime * 60;
     workRepeats = items.workRepeats;
     shortBreak = items.shortBreak * 60;
@@ -58,17 +58,37 @@ const refreshSettings = () => {
   });
 }
 
+function calcAmountOfLongBreaks() {
+  let amount = 0
+  if (workRepeats <= longBreakAfter) {
+    return amount;
+  } else {
+    if (workRepeats % longBreakAfter === 0) {
+      amount = workRepeats / longBreakAfter - 1;
+    } else {
+      amount = Math.floor(workRepeats / longBreakAfter);
+    }
+  }
+  return amount;
+}
+
+function calcAllTime() {
+  let allTime = workTime * workRepeats + amountOfLongBreaks * longBreak +
+    shortBreak * ((workRepeats - amountOfLongBreaks) - 1);
+  return allTime;
+}
+
 //------------BLOCK PAGES AND AUTOSTART SECTION----------------------------------------------------
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   toBlockPage(tab, blockSites);
 });
 
-chrome.tabs.onCreated.addListener(function (tab) {
+chrome.tabs.onCreated.addListener((tab) => {
   toBlockPage(tab, blockSites);
 });
 
-chrome.tabs.onActivated.addListener(function (activeInfo) {
+chrome.tabs.onActivated.addListener((activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
     toBlockPage(tab, blockSites);
   })
@@ -78,7 +98,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   chrome.storage.sync.get({
     autoStartTime: '09:00',
     autoStartParam: false
-  }, function (items) {
+  }, (items) => {
     if (timer === null && items.autoStartParam) {
       let autoStartTime = items.autoStartTime;
       let date = new Date(); // Create a Date object to find out what time it is
@@ -114,7 +134,7 @@ function toBlockPage(tab, toBlock) {
 
 function checkActiveTabToBlock(toBlock) {
   if (toBlock) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       var activeTab = tabs[0];
       toBlockPage(activeTab, toBlock);
     });
@@ -122,25 +142,6 @@ function checkActiveTabToBlock(toBlock) {
 }
 //-------------------------------------------------------
 
-function calcAmountOfLongBreaks() {
-  let amount = 0
-  if (workRepeats <= longBreakAfter) {
-    return amount;
-  } else {
-    if (workRepeats % longBreakAfter === 0) {
-      amount = workRepeats / longBreakAfter - 1;
-    } else {
-      amount = Math.floor(workRepeats / longBreakAfter);
-    }
-  }
-  return amount;
-}
-
-function calcAllTime() {
-  let allTime = workTime * workRepeats + amountOfLongBreaks * longBreak +
-    shortBreak * ((workRepeats - amountOfLongBreaks) - 1);
-  return allTime;
-}
 
 function startTimer() {
 
@@ -242,8 +243,8 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-chrome.runtime.onConnect.addListener(function (port) {
-  port.onMessage.addListener(function (msg) {
+chrome.runtime.onConnect.addListener((port) => {
+  port.onMessage.addListener((msg) => {
 
     if (msg.cmd === "startTimer") {
       startTimer();
@@ -281,7 +282,9 @@ function getTimerData() {
     isTimer: timer !== null,
   };
 }
+
 //////////////////////////////////////////////////////
+// Notification section
 
 function clearNotificaion() {
   chrome.notifications.clear('reportBreakToGo')
@@ -293,7 +296,7 @@ function callNotification(msg) {
     title: "BreakToGo",
     message: msg,
     iconUrl: `images/${isBreak ? 'break' : 'work'}-notification-64.png`
-  }, function (nID) {
+  }, (nID) => {
     setTimeout(clearNotificaion, 5000);
   });
 }
