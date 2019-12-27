@@ -1,3 +1,64 @@
-.special-blocker-break-to-go {
+#break-to-go-modal-container {
   z-index: 1000;
+  top: 0%;
+  left: 0%;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+#break-to-go-modal-child {
+  text-align: center;
+  box-sizing: border-box;
+  top: 50%;
+  left: 50%;
+  width: 45rem;
+  height: 12rem;
+  background: #fff;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 15px 30px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -o-border-radius: 8px;
+  -ms-border-radius: 8px;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 0 10px #000;
+  -moz-box-shadow: 0 0 10px #000;
+  -o-box-shadow: 0 0 10px #000;
+  -ms-box-shadow: 0 0 10px #000;
+  box-shadow: 0 0 10px #000;
+}
+
+#break-to-go-modal-child h2 {
+  color: #5D8EE4;
+  display: block;
+  font-size: 1.5rem;
+  margin-top: 0.83rem;
+  margin-bottom: 0.83rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-weight: bold;
+}
+
+#break-to-go-modal-child h3 {
+  color: #000;
+  display: block;
+  font-size: 1.17rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-weight: bold;
+}
+
+#break-to-go-modal-child p {
+  color: #000;
+  display: block;
+  font-size: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  margin-left: 0;
+  margin-right: 0;
 }

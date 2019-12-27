@@ -1,6 +1,6 @@
 {
   "name": "Break To Go",
-  "version": "1.1.9",
+  "version": "1.2.1",
   "description": "Simple time management web extension",
   "manifest_version": 2,
 
@@ -38,8 +38,8 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": ["libs/jquery.modal.min.css", "content.css"],
-      "js": ["libs/jquery.min.js", "libs/jquery.modal.min.js", "content.js"]
+      "css": ["content.css"],
+      "js": ["libs/jquery.min.js", "content.js"]
     }
   ]
 }
