@@ -1,10 +1,10 @@
 {
   "name": "Break To Go",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Simple time management web extension",
-  "manifest_version": 2,
+  "manifest_version": 3,
 
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "icons/icon-inactive-16.png",
       "32": "icons/icon-inactive-32.png",
@@ -23,12 +23,16 @@
   },
 
   "background": {
-    "scripts": ["libs/jquery.min.js", "background.js"],
-    "persistent": true
+    "service_worker": "service-worker.js"
   },
 
   "permissions": [
-    "notifications", "declarativeContent", "storage", "activeTab", "tabs", "alarms" 
+    "notifications", 
+    "declarativeContent", 
+    "storage",
+    "activeTab",
+    "tabs",
+    "alarms" 
   ],
 
   "options_page": "options-page/options.html",
@@ -38,8 +42,13 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": ["content.css"],
-      "js": ["libs/jquery.min.js", "content.js"]
+      "css": [
+        "content.css"
+      ],
+      "js": [
+        "libs/jquery.min.js",
+        "content.js"
+      ]
     }
   ]
 }

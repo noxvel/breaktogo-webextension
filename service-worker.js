@@ -117,7 +117,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onStartup.addListener(() => {
   refreshSettings();
-  chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
+  chrome.action.setIcon({ path: `icons/icon-inactive-32.png` });
 });
 
 function toBlockPage(tab, toBlock) {
@@ -146,13 +146,30 @@ function checkActiveTabToBlock(toBlock) {
 function startTimer() {
 
   if (allTime === 0)
+    chrome.storage.sync.get({
+        currentAllTime: 1,
+        currentTime: 0,
+        currentTimerTime: 0,
+        amountOfRepeats: 0
+      }, (items) => {
+        currentAllTime = items.currentAllTime;
+        currentTime = items.currentTime;
+        currentTimerTime = items.currentTimerTime;
+        amountOfRepeats = items.amountOfRepeats;
+    });
     restoreSettings();
 
-  isPause = false;
-  timer = setInterval(update, 1000);
-}
+    isPause = false;
+    timer = setInterval(update, 1000);
+  }
 
 function pauseTimer() {
+  chrome.storage.sync.set({
+    currentAllTime: currentAllTime,
+    currentTime: currentTime,
+    currentTimerTime: currentTimerTime,
+    amountOfRepeats: amountOfRepeats
+  });
   clearInterval(timer);
   timer = null;
   isPause = true;
@@ -170,7 +187,14 @@ function discardTimer() {
   amountOfLongBreaks = 0;
   allTime = 0;
   checkActiveTabToBlock(true);
-  chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
+  chrome.action.setIcon({ path: `icons/icon-inactive-32.png` });
+
+  chrome.storage.sync.set({
+    currentAllTime: 1,
+    currentTime: 0,
+    currentTimerTime: 0,
+    amountOfRepeats: 0
+  });
 }
 
 function update() {
@@ -179,7 +203,7 @@ function update() {
     if (amountOfRepeats >= workRepeats) {
       discardTimer();
       sendDataToPopup('end');
-      chrome.browserAction.setIcon({ path: `icons/icon-inactive-32.png` });
+      chrome.action.setIcon({ path: `icons/icon-inactive-32.png` });
       // Block page if necessary
       checkActiveTabToBlock(blockSites);
       return;
@@ -202,7 +226,7 @@ function update() {
       // Show notifications if appropriate setting is true
       if (showNotifications && amountOfRepeats !== 1) callNotification("It's time back to work!");
     }
-    chrome.browserAction.setIcon({ path: `icons/icon-${isBreak ? 'break-32' : 'work-32'}.png` });
+    chrome.action.setIcon({ path: `icons/icon-${isBreak ? 'break-32' : 'work-32'}.png` });
     sendDataToPopup();
 
     if (timer === null) {
