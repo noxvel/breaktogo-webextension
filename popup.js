@@ -23,6 +23,7 @@ chrome.runtime.onMessage.addListener(
       $('#allRepeats').text('/0');
       $('#timer').text('00:00:00')
     }
+    sendResponse({answer:"ok"});
   });
 
 $(document).ready(() => {
@@ -54,6 +55,11 @@ $(document).ready(() => {
     }
   });
 
+});
+
+//Create addition connection port for detection in service-worker side, that popup visible or not
+document.addEventListener('DOMContentLoaded', () => {
+  const port = chrome.runtime.connect({ name: 'popup' });
 });
 
 function updateTimerData(data) {

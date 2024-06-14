@@ -15,7 +15,8 @@ var workTime = 0,
   blockListSites = [],
   isBreak = false,
   isPause = true,
-  timer = null
+  timer = null,
+  isPopupVisible = false;
 
 function restoreSettings() {
   // Use default values
@@ -127,8 +128,11 @@ function toBlockPage(tab, toBlock) {
       return re.test(tab.url);
     });
 
-    if (result)
-      chrome.tabs.sendMessage(tab.id, { "message": "block_page", "isBreak": isBreak, "isTimer": timer !== null });
+    if (result){
+      chrome.tabs.sendMessage(tab.id, { "message": "block_page", "isBreak": isBreak, "isTimer": timer !== null })
+      .then((response)=>{})
+      .catch((error)=>{});
+    }
   }
 }
 
@@ -244,17 +248,22 @@ function update() {
 }
 
 function sendDataToPopup(cmd = '') {
+  if (!isPopupVisible)
+    return;
+
+  let answer = '';
   if (cmd === 'end') {
-    chrome.runtime.sendMessage({
-      answer: 'endTimer',
-      data: getTimerData()
-    });
+      answer = 'endTimer';
   } else {
-    chrome.runtime.sendMessage({
-      answer: 'getTimerState',
-      data: getTimerData()
-    });
+      answer = 'getTimerState';
   }
+
+  chrome.runtime.sendMessage({
+    answer: answer,
+    data: getTimerData()
+  })
+  .then((response)=> {})
+  .catch((error)=> {console.log(error)});
 }
 
 chrome.runtime.onMessage.addListener(
@@ -268,29 +277,35 @@ chrome.runtime.onMessage.addListener(
 );
 
 chrome.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener((msg) => {
+  if (port.name === "backGroundTimer") {
+    port.onMessage.addListener((msg) => {
 
-    if (msg.cmd === "startTimer") {
-      startTimer();
-      port.postMessage({
-        answer: "startTimer",
-        data: getTimerData()
-      });
-    } else if (msg.cmd === "pauseTimer") {
-      pauseTimer();
-      port.postMessage({
-        answer: "pauseTimer",
-        data: getTimerData()
-      });
-    } else if (msg.cmd === "discardTimer") {
-      discardTimer();
-      port.postMessage({
-        answer: "discardTimer",
-        data: getTimerData()
-      });
-    }
-
-  });
+      if (msg.cmd === "startTimer") {
+        startTimer();
+        port.postMessage({
+          answer: "startTimer",
+          data: getTimerData()
+        });
+      } else if (msg.cmd === "pauseTimer") {
+        pauseTimer();
+        port.postMessage({
+          answer: "pauseTimer",
+          data: getTimerData()
+        });
+      } else if (msg.cmd === "discardTimer") {
+        discardTimer();
+        port.postMessage({
+          answer: "discardTimer",
+          data: getTimerData()
+        });
+      }
+    });
+  }else if (port.name === 'popup') {
+    isPopupVisible = true;
+    port.onDisconnect.addListener(() => {
+      isPopupVisible = false;
+    });
+  }
 });
 
 function getTimerData() {
